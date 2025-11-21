@@ -1,7 +1,7 @@
 ﻿using Store.Infrastructure;
 using Store.Repositories;
 
-SqlConnectionProvider sql = new SqlConnectionProvider("TESTE");
+SqlConnectionProvider sql = new SqlConnectionProvider("ACCESS");
 //ClientRepository clientRepository = new ClientRepository(sql);
 //clientRepository.Delete(8);
 

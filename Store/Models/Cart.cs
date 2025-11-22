@@ -8,9 +8,9 @@ namespace Store.Models
 {
     internal class Cart
     {
-        private int id { get; }
-        private int idClient { get; }
-        private int idProduct { get; }
+        public int Id { get; }
+        public int IdClient { get; }
+        public int IdProduct { get; }
 
         public Cart(int id, int idClient, int idProduct)
         {

@@ -28,14 +28,13 @@ namespace Store.Repositories
             cmd.AddParam("@PhoneNumber", entity.PhoneNumber);
             cmd.AddParam("@AddressID", entity.Address.Id);
 
-            entity.Id = (int)cmd.ExecuteScalar();
-
+            entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
             return entity;
         }
 
         public bool Delete(int id)
         {
-            string query = "DELETE Client WHERE ID = @ID ";
+            string query = "DELETE FROM Client WHERE ID = @ID ";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
             using var cmd = connectProvider.CreateCommand();

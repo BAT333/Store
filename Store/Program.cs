@@ -1,10 +1,8 @@
 ﻿using Store.Infrastructure;
 using Store.Repositories;
+using Store.Models;
+string? value = Environment.GetEnvironmentVariable(
+    "DB_CONNECTION",
+    EnvironmentVariableTarget.Machine
+);
 
-SqlConnectionProvider sql = new SqlConnectionProvider("ACCESS");
-//ClientRepository clientRepository = new ClientRepository(sql);
-//clientRepository.Delete(8);
-
-//AddressesRepository addressesRepository = new AddressesRepository(sql);
-//
-//addressesRepository.Delete(2);

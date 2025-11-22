@@ -18,13 +18,13 @@ namespace Store.Repositories
         }
         public Product Add(Product entity)
         {
-            string qurey = "INSERT INTO Product(Name,Description,Price) OUTPUT INSERTED.ID " +
+            string query = "INSERT INTO Product(Name,Description,Price) OUTPUT INSERTED.ID " +
     "VALUES (@Name,@Description,@Price)";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var cmd = connectionProvider.CreateCommand();
 
-            cmd.CommandText = qurey;
+            cmd.CommandText = query;
             cmd.AddParam("@Name", entity.Name);
             cmd.AddParam("@Description", entity.Description);
             cmd.AddParam("@Price", entity.Price);

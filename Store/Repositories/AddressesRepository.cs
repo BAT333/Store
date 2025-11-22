@@ -26,14 +26,14 @@ namespace Store.Repositories
             cmd.AddParam("@Number", entity.Number);
             cmd.AddParam("@ZipCode", entity.ZipCode);
 
-            entity.Id = (int)cmd.ExecuteScalar();
+            entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
             return entity;
 
         }
 
         public bool Delete(int id)
         {
-            string query = "DELETE addresses WHERE ID =  @ID";
+            string query = "DELETE FROM addresses WHERE ID =  @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var cmd = connectionProvider.CreateCommand();

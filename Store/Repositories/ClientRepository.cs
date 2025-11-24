@@ -1,9 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic;
-using Store.Infrastructure;
-using Store.Models;
-using System.Data;
+﻿
 
+using Store.Domain;
+using Store.Infrastructure;
+using Store.Model;
 
 namespace Store.Repositories
 {

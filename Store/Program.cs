@@ -1,16 +1,13 @@
 ﻿using Store.Infrastructure;
 using Store.Repositories;
-using Store.Models;
+using Store.Service;
+
 string? value = Environment.GetEnvironmentVariable(
     "DB_CONNECTION",
     EnvironmentVariableTarget.Machine
 );
 
-using Store.Models;
-string? value = Environment.GetEnvironmentVariable(
-    "DB_CONNECTION",
-    EnvironmentVariableTarget.Machine
-);
-SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value);
+SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value ?? "");
+ClientService clientService2 = new ClientService(new ClientRepository(sqlConnection),new AddressesRepository(sqlConnection));
 
 Console.ReadLine();

@@ -1,7 +1,7 @@
 ﻿using Store.Valid;
 
 
-namespace Store.Models
+namespace Store.Domain
 {
     internal class Client
     {

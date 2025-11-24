@@ -1,5 +1,6 @@
 ﻿using Store.Infrastructure;
-using Store.Models;
+using Store.Domain;
+using Store.Model;
 
 
 namespace Store.Repositories

@@ -1,10 +1,6 @@
-﻿using Store.Infrastructure;
-using Store.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Store.Domain;
+using Store.Infrastructure;
+using Store.Model;
 
 namespace Store.Repositories
 {

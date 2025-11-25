@@ -15,5 +15,11 @@ namespace Store.Domain
             this.Description = description;
             this.Price = price;
         }
+        public Product(string name, string description, double price)
+        {
+            this.Name = name;
+            this.Description = description;
+            this.Price = price;
+        }
     }
 }

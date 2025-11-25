@@ -1,6 +1,13 @@
 ﻿using Store.Infrastructure;
 using Store.Repositories;
 using Store.Service;
+/*
+ * FAZER SERVICE
+ * FAZER ROLLBACK
+ * FAZER THROW
+ * TERMINAR AS VALIDAÇÃO E VERIFICAR QUE TODA LOGICA FAZ SENTIDO 
+ * SOLID / CLEAN 
+ */
 
 string? value = Environment.GetEnvironmentVariable(
     "DB_CONNECTION",

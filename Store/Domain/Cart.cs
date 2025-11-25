@@ -3,7 +3,7 @@ namespace Store.Domain
 {
     internal class Cart
     {
-        public int Id { get; }
+        public int Id { get; set; }
         public int IdClient { get; }
         public int IdProduct { get; }
 

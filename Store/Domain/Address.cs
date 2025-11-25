@@ -10,7 +10,11 @@ namespace Store.Domain
         public int Number { get; set; }
         public string ZipCode { get; set; }
 
-        public Address(int id, string city,string state, string neighborhood, int number,string zipCode)
+        public Address(int id)
+        {
+            this.Id = id;
+        }
+        public Address(int id, string city, string state, string neighborhood, int number, string zipCode)
         {
             this.Id = id;
             this.City = city;

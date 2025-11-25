@@ -19,7 +19,14 @@ namespace Store.Domain
             this.PhoneNumber = phoneNumber;
             this.Address = address;
         }
-        public Client( string name, string email, string phoneNumber)
+        public Client(string name, string email, string phoneNumber, Address address)
+        {
+            this.Name = name;
+            this.Email = email;
+            this.PhoneNumber = phoneNumber;
+            this.Address = address;
+        }
+        public Client(string name, string email, string phoneNumber)
         {
             this.Name = name;
             this.Email = email;

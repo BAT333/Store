@@ -46,7 +46,7 @@ namespace Store.Repositories
 
         public Client? GetById(int id)
         {
-            string qurey = "SELECT ID , Name , Email ,PhoneNumber FROM Client WHERE ID = @ID";
+            string qurey = "SELECT ID , Name , Email ,PhoneNumber,AddressID FROM Client WHERE ID = @ID";
 
             using var sql = this._connectProvider.CreateOpenConnection();
             using var cmd = sql.CreateCommand();
@@ -62,7 +62,8 @@ namespace Store.Repositories
                 string? name = reader["Name"].ToString();
                 string? email = reader["Email"].ToString();
                 string? phoneNumber = reader["PhoneNumber"].ToString();
-                return new Client(clienteID ?? 0, name ?? "", email ?? "", phoneNumber ?? "", null);
+                int? addressID = (int)Convert.ToInt64(reader["AddressID"]);
+                return new Client(clienteID ?? 0, name ?? "", email ?? "", phoneNumber ?? "", new Address(addressID ?? 0));
             }
 
             return null;
@@ -70,19 +71,40 @@ namespace Store.Repositories
 
         public Client? Update(int id, Client entity)
         {
-            string query = "UPDATE Client SET Name = @Name , Email = @Email , PhoneNumber = @PhoneNumber , AddressID = @AddressID WHERE ID = @ID";
+            string query = "UPDATE Client SET Name = @Name , Email = @Email , PhoneNumber = @PhoneNumber  WHERE ID = @ID";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
+            using var transaction = connectProvider.BeginTransaction();
             using var cmd = connectProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
             cmd.AddParam("@Name", entity.Name);
             cmd.AddParam("@Email", entity.Email);
             cmd.AddParam("@PhoneNumber", entity.PhoneNumber);
-            cmd.AddParam("@AddressID", entity.Address.Id);
 
-            return cmd.ExecuteNonQuery() > 0 ? entity : null;
+            try
+            {
+                int rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                {
+                    transaction.Commit();
+                    return entity;
+                }
+                else
+                {
+                    transaction.Rollback();
+                    return null;
+                }
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
 
         }
 

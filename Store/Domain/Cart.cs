@@ -13,5 +13,11 @@ namespace Store.Domain
             this.IdClient = idClient;
             this.IdProduct = idProduct;
         }
+
+        public Cart( int idClient, int idProduct)
+        {
+            this.IdClient = idClient;
+            this.IdProduct = idProduct;
+        }
     }
 }

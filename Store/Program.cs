@@ -16,20 +16,21 @@ string? value = Environment.GetEnvironmentVariable(
 );
 
 SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value ?? "");
-ProductService productService = new ProductService(new ProductRepository(sqlConnection));
-Product product = productService.Add(new Product("Carro", "carro quebrado", 2.500));
+StoreService storeService = new StoreService(new StoreRepository(sqlConnection),new ClientRepository(sqlConnection),new ProductRepository(sqlConnection) );
 
-Console.WriteLine(product.Id + " - " + product.Name);
+ Cart cart = storeService.Add(new Cart(27,5));
+Console.WriteLine(cart.Id);
 
-Product product1 = productService.Update(product.Id, new Product("Carro Novo", "Carro Novo", 10.000));
+Cart cart1 = storeService.GetById(cart.Id);
 
-Console.WriteLine(product1.Id + " - " + product1.Name);
+Console.WriteLine(cart1.IdProduct + "---" + cart1.IdClient);
 
-Product product2 = productService.GetById(product.Id);
+Cart cart2 = storeService.Update(cart.Id, new Cart(33, 2));
 
-Console.WriteLine(product2.Id + " - " + product2.Name);
+Console.WriteLine(cart2.IdProduct + "---" + cart2.IdClient);
 
-bool delete = productService.Delete(product.Id);
+
+bool delete =storeService.Delete(cart.Id);
 
 Console.WriteLine(delete);
 

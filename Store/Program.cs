@@ -1,10 +1,36 @@
 ﻿using Store.Infrastructure;
 using Store.Repositories;
+using Store.Service;
+using Store.Domain;
+/*
+ * FAZER THROW
+ * TERMINAR AS VALIDAÇÃO E VERIFICAR QUE TODA LOGICA FAZ SENTIDO 
+ * SOLID / CLEAN 
+ * CRIAR ABSTRAÇÃO PARA QUE PRECISA
+ */
 
-SqlConnectionProvider sql  = new SqlConnectionProvider("ACCESS");
-//ClientRepository clientRepository = new ClientRepository(sql);
-//clientRepository.Delete(8);
+string? value = Environment.GetEnvironmentVariable(
+    "DB_CONNECTION",
+    EnvironmentVariableTarget.Machine
+);
 
-//AddressesRepository addressesRepository = new AddressesRepository(sql);
-//
-//addressesRepository.Delete(2);
+SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value ?? "");
+StoreService storeService = new StoreService(new StoreRepository(sqlConnection),new ClientRepository(sqlConnection),new ProductRepository(sqlConnection) );
+
+ Cart cart = storeService.Add(new Cart(27,5));
+Console.WriteLine(cart.Id);
+
+Cart cart1 = storeService.GetById(cart.Id);
+
+Console.WriteLine(cart1.IdProduct + "---" + cart1.IdClient);
+
+Cart cart2 = storeService.Update(cart.Id, new Cart(33, 2));
+
+Console.WriteLine(cart2.IdProduct + "---" + cart2.IdClient);
+
+
+bool delete =storeService.Delete(cart.Id);
+
+Console.WriteLine(delete);
+
+Console.ReadLine();

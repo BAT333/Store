@@ -1,6 +1,7 @@
 ﻿using Store.Infrastructure;
 using Store.Domain;
 using Store.Model;
+using System.Diagnostics;
 namespace Store.Repositories
 {
     internal class ProductRepository : IDao<Product>
@@ -17,15 +18,30 @@ namespace Store.Repositories
     "VALUES (@Name,@Description,@Price)";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@Name", entity.Name);
             cmd.AddParam("@Description", entity.Description);
             cmd.AddParam("@Price", entity.Price);
 
-            entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
-            return entity;
+            try
+            {
+                entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
+
+                transaction.Commit();
+
+                return entity;
+
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
 
         public bool Delete(int id)
@@ -33,12 +49,33 @@ namespace Store.Repositories
             string query = "DELETE FROM Product WHERE Id = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
 
-            return cmd.ExecuteNonQuery() > 0;
+            try
+            {
+                bool delete = cmd.ExecuteNonQuery() > 0;
+
+                if (!delete)
+                {
+                    transaction.Rollback();
+                    return delete;
+                }
+                transaction.Commit();
+                return delete;
+
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
+
         }
 
         public Product? GetById(int id)
@@ -46,24 +83,39 @@ namespace Store.Repositories
             string query = "SELECT ID, Name, Description ,Price FROM Product WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
 
-            using var reader = cmd.ExecuteReader();
-
-            if (reader.Read())
+            try
             {
-                int productID = Convert.ToInt32(reader["ID"]);
-                string name = reader["Name"].ToString();
-                string description = reader["Description"].ToString();
-                double price = Convert.ToDouble(reader["Price"]);
+                using var reader = cmd.ExecuteReader();
 
-                return new Product(productID, name, description, price);
+                if (reader.Read())
+                {
+                    int productID = Convert.ToInt32(reader["ID"]);
+                    string? name = reader["Name"].ToString();
+                    string? description = reader["Description"].ToString();
+                    double price = Convert.ToDouble(reader["Price"]);
 
+                    transaction.Commit();
+                    return new Product(productID, name ?? "", description ?? "", price);
+
+                }
+                transaction.Rollback();
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
+
+
         }
 
         public Product? Update(int id, Product entity)
@@ -71,8 +123,10 @@ namespace Store.Repositories
             string query = "UPDATE Product SET Name = @Name, Description = @Description ,Price = @Price WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
 
             cmd.AddParam("@Name", entity.Name);
@@ -80,7 +134,25 @@ namespace Store.Repositories
             cmd.AddParam("@Price", entity.Price);
             cmd.AddParam("@ID", id);
 
-            return cmd.ExecuteNonQuery() > 0 ? entity : null;
+
+            try
+            {
+                bool update = cmd.ExecuteNonQuery() > 0;
+
+                if (!update)
+                {
+                    transaction.Rollback();
+                    return null;
+                }
+                transaction.Commit();
+                return entity;
+
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
     }
 }

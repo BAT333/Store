@@ -3,11 +3,10 @@ using Store.Repositories;
 using Store.Service;
 using Store.Domain;
 /*
- * FAZER SERVICE
- * FAZER ROLLBACK
  * FAZER THROW
  * TERMINAR AS VALIDAÇÃO E VERIFICAR QUE TODA LOGICA FAZ SENTIDO 
  * SOLID / CLEAN 
+ * CRIAR ABSTRAÇÃO PARA QUE PRECISA
  */
 
 string? value = Environment.GetEnvironmentVariable(

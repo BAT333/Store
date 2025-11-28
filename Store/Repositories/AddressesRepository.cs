@@ -1,5 +1,6 @@
 ﻿using Store.Infrastructure;
-using Store.Models;
+using Store.Domain;
+using Store.Model;
 
 
 namespace Store.Repositories
@@ -17,17 +18,35 @@ namespace Store.Repositories
                 "OUTPUT INSERTED.ID VALUES (@City, @State,@Neighborhood,@Number,@ZipCode)";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@City", entity.City);
             cmd.AddParam("@State", entity.State);
             cmd.AddParam("@Neighborhood", entity.Neighborhood);
             cmd.AddParam("@Number", entity.Number);
             cmd.AddParam("@ZipCode", entity.ZipCode);
 
-            entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
-            return entity;
+            try
+            {
+
+                entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
+
+                transaction.Commit();
+
+                return entity;
+
+            }
+            catch (Exception ex)
+            {
+
+                transaction.Rollback();
+                throw ex.GetBaseException();
+
+            }
 
         }
 
@@ -36,12 +55,33 @@ namespace Store.Repositories
             string query = "DELETE FROM addresses WHERE ID =  @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
 
-            return cmd.ExecuteNonQuery() > 0;
+
+            try
+            {
+                bool delete = cmd.ExecuteNonQuery() > 0;
+
+                if (!delete)
+                {
+                    transaction.Rollback();
+                    return delete;
+                }
+                transaction.Commit();
+
+                return delete;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
 
         public Address? GetById(int id)
@@ -49,27 +89,41 @@ namespace Store.Repositories
             string query = "SELECT ID , City,State,Neighborhood,Number,ZipCode FROM addresses WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
 
-            using var reader = cmd.ExecuteReader();
-
-            if (reader.Read())
+            try
             {
+                using var reader = cmd.ExecuteReader();
 
-                int? addressID = (int)Convert.ToInt64(reader["ID"]);
-                string? city = reader["City"].ToString();
-                string? state = reader["State"].ToString();
-                string? neighborhood = reader["Neighborhood"].ToString();
-                int? number = (int)Convert.ToInt64(reader["Number"]);
-                string? zipCode = reader["ZipCode"].ToString();
+                if (reader.Read())
+                {
 
-                return new Address(addressID ?? 0, city ?? "", state ?? "", neighborhood ?? "", number ?? 0, zipCode ?? "");
+                    int? addressID = (int)Convert.ToInt64(reader["ID"]);
+                    string? city = reader["City"].ToString();
+                    string? state = reader["State"].ToString();
+                    string? neighborhood = reader["Neighborhood"].ToString();
+                    int? number = (int)Convert.ToInt64(reader["Number"]);
+                    string? zipCode = reader["ZipCode"].ToString();
+
+                    transaction.Commit();
+
+                    return new Address(addressID ?? 0, city ?? "", state ?? "", neighborhood ?? "", number ?? 0, zipCode ?? "");
+                }
+
+                transaction.Rollback();
+                return null;
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
 
         public Address? Update(int id, Address entity)
@@ -77,9 +131,12 @@ namespace Store.Repositories
             string query = "UPDATE addresses SET City = @City ,State = @State ,Neighborhood = @Neighborhood ,Number = @Number ,ZipCode = @ZipCode WHERE ID = @ID ";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
+            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
             cmd.AddParam("@City", entity.City);
             cmd.AddParam("@State", entity.State);
@@ -87,7 +144,22 @@ namespace Store.Repositories
             cmd.AddParam("@Number", entity.Number);
             cmd.AddParam("@ZipCode", entity.ZipCode);
 
-            return cmd.ExecuteNonQuery() > 0? entity:null;
+            try
+            {
+                bool update = cmd.ExecuteNonQuery() > 0;
+                if (update)
+                {
+                    transaction.Commit();
+                    return entity;
+                }
+                transaction.Rollback();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
     }
 }

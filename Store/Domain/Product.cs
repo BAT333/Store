@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Store.Models
+﻿
+namespace Store.Domain
 {
     internal class Product
     {
@@ -16,6 +11,12 @@ namespace Store.Models
         public Product(int id, string name, string description, double price)
         {
             this.Id = id;
+            this.Name = name;
+            this.Description = description;
+            this.Price = price;
+        }
+        public Product(string name, string description, double price)
+        {
             this.Name = name;
             this.Description = description;
             this.Price = price;

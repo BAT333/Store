@@ -1,9 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic;
-using Store.Infrastructure;
-using Store.Models;
-using System.Data;
+﻿
 
+using Store.Domain;
+using Store.Infrastructure;
+using Store.Model;
 
 namespace Store.Repositories
 {
@@ -20,16 +19,30 @@ namespace Store.Repositories
                 "VALUES (@Name,@Email,@PhoneNumber,@AddressID)";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
+            using var transaction = connectProvider.BeginTransaction();
             using var cmd = connectProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = qurey;
+
             cmd.AddParam("@Name", entity.Name);
             cmd.AddParam("@Email", entity.Email);
             cmd.AddParam("@PhoneNumber", entity.PhoneNumber);
             cmd.AddParam("@AddressID", entity.Address.Id);
 
-            entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
-            return entity;
+            try
+            {
+                entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
+
+                transaction.Commit();
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
 
         public bool Delete(int id)
@@ -37,53 +50,107 @@ namespace Store.Repositories
             string query = "DELETE FROM Client WHERE ID = @ID ";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
+            using var transaction = connectProvider.BeginTransaction();
             using var cmd = connectProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
             cmd.AddParam("@ID", id);
 
-            return cmd.ExecuteNonQuery() > 0;
+            try
+            {
+                bool delete = cmd.ExecuteNonQuery() > 0;
+                if (!delete)
+                {
+                    transaction.Rollback();
+                    return delete;
+                }
+
+
+                transaction.Commit();
+                return delete;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
+            }
         }
 
         public Client? GetById(int id)
         {
-            string qurey = "SELECT ID , Name , Email ,PhoneNumber FROM Client WHERE ID = @ID";
+            string qurey = "SELECT ID , Name , Email ,PhoneNumber,AddressID FROM Client WHERE ID = @ID";
 
-            using var sql = this._connectProvider.CreateOpenConnection();
-            using var cmd = sql.CreateCommand();
+            using var connectProvider = this._connectProvider.CreateOpenConnection();
+            using var transaction = connectProvider.BeginTransaction();
+            using var cmd = connectProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = qurey;
             cmd.AddParam("@ID", id);
 
-            using var reader = cmd.ExecuteReader();
-
-            if (reader.Read())
+            try
             {
-                int? clienteID = (int)Convert.ToInt64(reader["ID"]);
-                string? name = reader["Name"].ToString();
-                string? email = reader["Email"].ToString();
-                string? phoneNumber = reader["PhoneNumber"].ToString();
-                return new Client(clienteID ?? 0, name ?? "", email ?? "", phoneNumber ?? "", null);
+                using var reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    int? clienteID = (int)Convert.ToInt64(reader["ID"]);
+                    string? name = reader["Name"].ToString();
+                    string? email = reader["Email"].ToString();
+                    string? phoneNumber = reader["PhoneNumber"].ToString();
+                    int? addressID = (int)Convert.ToInt64(reader["AddressID"]);
+                    transaction.Commit();
+                    return new Client(clienteID ?? 0, name ?? "", email ?? "", phoneNumber ?? "", new Address(addressID ?? 0));
+                }
+
+                transaction.Rollback();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex.GetBaseException();
             }
 
-            return null;
         }
 
         public Client? Update(int id, Client entity)
         {
-            string query = "UPDATE Client SET Name = @Name , Email = @Email , PhoneNumber = @PhoneNumber , AddressID = @AddressID WHERE ID = @ID";
+            string query = "UPDATE Client SET Name = @Name , Email = @Email , PhoneNumber = @PhoneNumber  WHERE ID = @ID";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
+            using var transaction = connectProvider.BeginTransaction();
             using var cmd = connectProvider.CreateCommand();
 
+            cmd.Transaction = transaction;
             cmd.CommandText = query;
+
             cmd.AddParam("@ID", id);
             cmd.AddParam("@Name", entity.Name);
             cmd.AddParam("@Email", entity.Email);
             cmd.AddParam("@PhoneNumber", entity.PhoneNumber);
-            cmd.AddParam("@AddressID", entity.Address.Id);
 
-            return cmd.ExecuteNonQuery() > 0 ? entity : null;
+            try
+            {
+                int rows = cmd.ExecuteNonQuery();
+
+                if (rows > 0)
+                {
+                    transaction.Commit();
+                    return entity;
+                }
+                else
+                {
+                    transaction.Rollback();
+                    return null;
+                }
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
 
         }
 

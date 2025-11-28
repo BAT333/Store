@@ -5,8 +5,8 @@ using Store.Domain;
 /*
  * FAZER THROW
  * TERMINAR AS VALIDAÇÃO E VERIFICAR QUE TODA LOGICA FAZ SENTIDO 
- * SOLID / CLEAN 
  * CRIAR ABSTRAÇÃO PARA QUE PRECISA
+ * SOLID / CLEAN 
  */
 
 string? value = Environment.GetEnvironmentVariable(

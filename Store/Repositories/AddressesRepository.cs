@@ -1,6 +1,8 @@
-﻿using Store.Infrastructure;
-using Store.Domain;
+﻿using Store.Domain;
+using Store.Infrastructure;
+using Store.Infrastructure.ExceptionCustomized;
 using Store.Model;
+using System.Data.Common;
 
 
 namespace Store.Repositories
@@ -40,11 +42,11 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
 
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalCustomer("Error registering address.", ex);
 
             }
 
@@ -77,10 +79,12 @@ namespace Store.Repositories
 
                 return delete;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
+
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalCustomer("ERROR DELETING ADDRESSES.", ex);
+
             }
         }
 
@@ -119,10 +123,12 @@ namespace Store.Repositories
                 transaction.Rollback();
                 return null;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
+
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalCustomer("ERROR SEARCHING FOR ADDRESSES.", ex);
+
             }
         }
 
@@ -155,10 +161,10 @@ namespace Store.Repositories
                 transaction.Rollback();
                 return null;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalCustomer("Error updating addresses.", ex);
             }
         }
     }

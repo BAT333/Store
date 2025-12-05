@@ -1,4 +1,5 @@
 ﻿using Store.Domain;
+using Store.Infrastructure.ExceptionCustomized;
 using Store.Model;
 
 namespace Store.Service
@@ -12,25 +13,27 @@ namespace Store.Service
         }
         public Product Add(Product entity)
         {
-            if (entity == null) return null;
+            if (entity == null) throw new ExceptionalProduct("Product not registered.");
             return this._productRepository.Add(entity);
         }
 
         public bool Delete(int id)
         {
-            if (this.GetById(id) == null) return false;
+            this.GetById(id);
             return this._productRepository.Delete(id);
         }
 
         public Product? GetById(int id)
         {
-            return this._productRepository.GetById(id);
+            Product product = this._productRepository.GetById(id);
+            if (product == null || product.Id <= 0) throw new ExceptionalCustomer("Product not registered");
+            return product;
         }
 
         public Product? Update(int id, Product entity)
         {
-            if (this.GetById(id) == null) return null;
-            if (entity == null) return null;
+            this.GetById(id);
+            if (entity == null) throw new ExceptionalProduct("Product not registered.");
             return this._productRepository.Update(id, entity);
         }
     }

@@ -2,6 +2,8 @@
 using Store.Domain;
 using Store.Model;
 using System.Diagnostics;
+using System.Data.Common;
+using Store.Infrastructure.ExceptionCustomized;
 namespace Store.Repositories
 {
     internal class ProductRepository : IDao<Product>
@@ -37,10 +39,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalProduct("Error registering product.", ex);
             }
         }
 
@@ -70,10 +72,10 @@ namespace Store.Repositories
                 return delete;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalProduct("ERROR DELETING PRODUCT.", ex);
             }
 
         }
@@ -109,10 +111,10 @@ namespace Store.Repositories
                 transaction.Rollback();
                 return null;
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalProduct("ERROR SEARCHING FOR PRODUCT", ex);
             }
 
 
@@ -148,10 +150,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalProduct("Error updating Product.", ex);
             }
         }
     }

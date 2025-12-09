@@ -87,10 +87,8 @@ namespace Store.Repositories
             string query = "SELECT ID,  ClientID , ProductID FROM Cart WHERE ID = @ID";
 
             using var connection = this._connectionProvider.CreateOpenConnection();
-            using var transaction = connection.BeginTransaction();
             using var cmd = connection.CreateCommand();
 
-            cmd.Transaction = transaction;
             cmd.CommandText = query;
 
             cmd.AddParam("@ID", id);
@@ -104,16 +102,13 @@ namespace Store.Repositories
                     int clientID = Convert.ToInt32(reader["ClientID"]);
                     int productID = Convert.ToInt32(reader["ProductID"]);
 
-                    transaction.Commit();
                     return new Cart(cardID, clientID, productID);
                 }
-                transaction.Rollback();
                 return null;
 
             }
             catch (DbException ex)
             {
-                transaction.Rollback();
                 throw new ExceptionalStore("ERROR SEARCHING FOR STORE.", ex);
             }
         }

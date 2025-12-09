@@ -84,10 +84,8 @@ namespace Store.Repositories
             string qurey = "SELECT ID , Name , Email ,PhoneNumber,AddressID FROM Client WHERE ID = @ID";
 
             using var connectProvider = this._connectProvider.CreateOpenConnection();
-            using var transaction = connectProvider.BeginTransaction();
             using var cmd = connectProvider.CreateCommand();
 
-            cmd.Transaction = transaction;
             cmd.CommandText = qurey;
             cmd.AddParam("@ID", id);
 
@@ -102,16 +100,14 @@ namespace Store.Repositories
                     string? email = reader["Email"].ToString();
                     string? phoneNumber = reader["PhoneNumber"].ToString();
                     int? addressID = (int)Convert.ToInt64(reader["AddressID"]);
-                    transaction.Commit();
+
                     return new Client(clienteID ?? 0, name ?? "", email ?? "", phoneNumber ?? "", new Address(addressID ?? 0));
                 }
 
-                transaction.Rollback();
                 return null;
             }
             catch (DbException ex)
             {
-                transaction.Rollback();
                 throw new ExceptionalCustomer("ERROR SEARCHING FOR CLIENT", ex);
             }
 

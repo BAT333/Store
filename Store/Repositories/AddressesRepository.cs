@@ -93,10 +93,8 @@ namespace Store.Repositories
             string query = "SELECT ID , City,State,Neighborhood,Number,ZipCode FROM addresses WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
-            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
-            cmd.Transaction = transaction;
             cmd.CommandText = query;
 
             cmd.AddParam("@ID", id);
@@ -115,18 +113,14 @@ namespace Store.Repositories
                     int? number = (int)Convert.ToInt64(reader["Number"]);
                     string? zipCode = reader["ZipCode"].ToString();
 
-                    transaction.Commit();
-
                     return new Address(addressID ?? 0, city ?? "", state ?? "", neighborhood ?? "", number ?? 0, zipCode ?? "");
                 }
 
-                transaction.Rollback();
                 return null;
             }
             catch (DbException ex)
             {
 
-                transaction.Rollback();
                 throw new ExceptionalCustomer("ERROR SEARCHING FOR ADDRESSES.", ex);
 
             }

@@ -85,10 +85,8 @@ namespace Store.Repositories
             string query = "SELECT ID, Name, Description ,Price FROM Product WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
-            using var transaction = connectionProvider.BeginTransaction();
             using var cmd = connectionProvider.CreateCommand();
 
-            cmd.Transaction = transaction;
             cmd.CommandText = query;
 
             cmd.AddParam("@ID", id);
@@ -104,16 +102,13 @@ namespace Store.Repositories
                     string? description = reader["Description"].ToString();
                     double price = Convert.ToDouble(reader["Price"]);
 
-                    transaction.Commit();
                     return new Product(productID, name ?? "", description ?? "", price);
 
                 }
-                transaction.Rollback();
                 return null;
             }
             catch (DbException ex)
             {
-                transaction.Rollback();
                 throw new ExceptionalProduct("ERROR SEARCHING FOR PRODUCT", ex);
             }
 

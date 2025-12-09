@@ -44,10 +44,10 @@ namespace Store.Service
         public Client GetById(int id)
         {
             Client? client = this._clientRepository.GetById(id);
-            if (client == null || client.Address.Id <= 0) throw new ExceptionalCustomer("Client not registered");
+            if (client == null || client.Address.Id <= 0) throw new ExceptionalCustomer("Client not registered.");
 
             Address? address = _addressesRepository.GetById(client.Address.Id);
-            if (address == null || address.Id <= 0) throw new ExceptionalCustomer("address not registered");
+            if (address == null || address.Id <= 0) throw new ExceptionalCustomer("address not registered.");
 
             client.Address = address;
 
@@ -56,7 +56,8 @@ namespace Store.Service
 
         public Client? Update(int id, Client entity)
         {
-            if (this._clientRepository.GetById(id) == null) return null;
+            if (entity == null) throw new ExceptionalCustomer("Client not registered.");
+            this._clientRepository.GetById(id);
             Client? client = this._clientRepository.Update(id, entity);
             return client;
         }

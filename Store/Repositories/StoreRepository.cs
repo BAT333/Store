@@ -1,6 +1,8 @@
 ﻿using Store.Domain;
 using Store.Infrastructure;
+using Store.Infrastructure.ExceptionCustomized;
 using Store.Model;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace Store.Repositories
@@ -37,10 +39,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("Error registering store.", ex);
             }
 
 
@@ -73,10 +75,10 @@ namespace Store.Repositories
                 return delete;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("ERROR DELETING STORE.", ex);
             }
         }
 
@@ -109,10 +111,10 @@ namespace Store.Repositories
                 return null;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("ERROR SEARCHING FOR STORE.", ex);
             }
         }
 
@@ -143,10 +145,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("Error updating store.", ex);
             }
         }
     }

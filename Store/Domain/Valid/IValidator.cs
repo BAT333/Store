@@ -1,5 +1,4 @@
-﻿
-namespace Store.Valid
+﻿namespace Store.Domain.Valid
 {
     internal class IValidator
     {

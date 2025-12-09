@@ -1,5 +1,4 @@
-﻿using Store.Valid;
-
+﻿using Store.Domain.Valid;
 
 namespace Store.Domain
 {

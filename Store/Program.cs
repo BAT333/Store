@@ -18,15 +18,19 @@ string? value = Environment.GetEnvironmentVariable(
 );
 
 
-SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value ?? "");
-StoreService storeService = new StoreService(new StoreRepository(sqlConnection),new ClientRepository(sqlConnection),new ProductRepository(sqlConnection));
 
-Cart cart = storeService.Add(new Cart(20017, 10002));
-Console.WriteLine(cart.Id);
-Cart cart1 = storeService.Update(cart.Id, new Cart(20017, 10004));
-Console.WriteLine(cart1.IdProduct);
-Cart cart2 = storeService.GetById(cart.Id);
-Console.WriteLine(cart2.IdProduct);
-Console.WriteLine(storeService.Delete(cart.Id));
+try
+{
+    using HttpClient httpClient = new HttpClient();
+    string respost = await httpClient.GetStringAsync("https://viacep.com.br/ws/01001000/json/");
+
+    httpClient.Dispose();
+
+    Console.WriteLine(respost);
+}catch(Exception EX)
+{
+    EX.GetBaseException();
+}
+
 
 Console.ReadLine();

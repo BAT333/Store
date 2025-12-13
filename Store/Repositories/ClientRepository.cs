@@ -1,17 +1,19 @@
 ﻿
 
 using Store.Domain;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Infrastructure;
 using Store.Infrastructure;
 using Store.Infrastructure.ExceptionCustomized;
+using System.Data;
 using System.Data.Common;
-using Store.Domain.Model.Dao;
 
 namespace Store.Repositories
 {
     internal class ClientRepository : IDaoClient<Client>
     {
-        private readonly SqlConnectionProvider _connectProvider;
-        public ClientRepository(SqlConnectionProvider connectProvider)
+        private readonly IConnectionSQL<IDbConnection> _connectProvider;
+        public ClientRepository(IConnectionSQL<IDbConnection> connectProvider)
         {
             this._connectProvider = connectProvider;
         }

@@ -1,16 +1,18 @@
-﻿using Store.Infrastructure;
-using Store.Domain;
-using System.Diagnostics;
-using System.Data.Common;
-using Store.Infrastructure.ExceptionCustomized;
+﻿using Store.Domain;
 using Store.Domain.Model.Dao;
+using Store.Domain.Model.Infrastructure;
+using Store.Infrastructure;
+using Store.Infrastructure.ExceptionCustomized;
+using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
 namespace Store.Repositories
 {
     internal class ProductRepository : IDaoProduct<Product>
     {
-        private readonly SqlConnectionProvider _connectionProvider;
+        private readonly IConnectionSQL<IDbConnection> _connectionProvider;
 
-        public ProductRepository(SqlConnectionProvider connectionProvider)
+        public ProductRepository(IConnectionSQL<IDbConnection> connectionProvider)
         {
             this._connectionProvider = connectionProvider;
         }

@@ -1,4 +1,6 @@
 ﻿
+using Store.Infrastructure.ExceptionCustomized;
+
 namespace Store.Domain
 {
     internal class Product
@@ -6,7 +8,7 @@ namespace Store.Domain
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public double Price { get; set; }
+        private double _price;
 
         public Product(int id, string name, string description, double price)
         {
@@ -20,6 +22,23 @@ namespace Store.Domain
             this.Name = name;
             this.Description = description;
             this.Price = price;
+        }
+
+        public double Price
+        {
+            get { return this._price; }
+            set
+            {
+                if (value > 1.0)
+                {
+                    _price = value;
+                }
+                else
+                {
+                    throw new ExceptionalProduct(message:"Invalid phone number price",innerException: new ArgumentException());
+                }
+            }
+
         }
     }
 }

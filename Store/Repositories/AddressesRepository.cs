@@ -1,13 +1,13 @@
 ﻿using Store.Domain;
 using Store.Infrastructure;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
 using System.Data.Common;
+using Store.Domain.Model.Dao;
 
 
 namespace Store.Repositories
 {
-    internal class AddressesRepository : IDao<Address>
+    internal class AddressesRepository : IDaoAddresses<Address>
     {
         private readonly SqlConnectionProvider _connectionProvider;
         public AddressesRepository(SqlConnectionProvider connectionProvider)

@@ -1,13 +1,15 @@
 ﻿using Store.Domain;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Service;
+
 
 namespace Store.Service
 {
-    internal class ProductService : IDao<Product>
+    internal class ProductService : IServiceProduct<Product>
     {
-        private readonly IDao<Product> _productRepository;
-        public ProductService(IDao<Product> productRepository)
+        private readonly IDaoProduct<Product> _productRepository;
+        public ProductService(IDaoProduct<Product> productRepository)
         {
             this._productRepository = productRepository;
         }

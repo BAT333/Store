@@ -2,18 +2,19 @@
 
 using Store.Domain;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
-using Store.Repositories;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Service;
+
 
 namespace Store.Service
 {
-    internal class StoreService : IDao<Cart>
+    internal class StoreService : IServiceStore<Cart>
     {
-        private readonly IDao<Cart> _storeRepository;
-        private readonly IDao<Client> _clientRepository;
-        private readonly IDao<Product> _productRepository;
+        private readonly IDaoStore<Cart> _storeRepository;
+        private readonly IDaoClient<Client> _clientRepository;
+        private readonly IDaoProduct<Product> _productRepository;
 
-        public StoreService(IDao<Cart> storeRepository, IDao<Client> clientRepository, IDao<Product> productRepository)
+        public StoreService(IDaoStore<Cart> storeRepository, IDaoClient<Client> clientRepository, IDaoProduct<Product> productRepository)
         {
             this._storeRepository = storeRepository;
             this._clientRepository = clientRepository;

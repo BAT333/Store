@@ -1,12 +1,12 @@
 ﻿using Store.Infrastructure;
 using Store.Domain;
-using Store.Model;
 using System.Diagnostics;
 using System.Data.Common;
 using Store.Infrastructure.ExceptionCustomized;
+using Store.Domain.Model.Dao;
 namespace Store.Repositories
 {
-    internal class ProductRepository : IDao<Product>
+    internal class ProductRepository : IDaoProduct<Product>
     {
         private readonly SqlConnectionProvider _connectionProvider;
 

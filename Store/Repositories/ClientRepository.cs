@@ -3,12 +3,12 @@
 using Store.Domain;
 using Store.Infrastructure;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
 using System.Data.Common;
+using Store.Domain.Model.Dao;
 
 namespace Store.Repositories
 {
-    internal class ClientRepository : IDao<Client>
+    internal class ClientRepository : IDaoClient<Client>
     {
         private readonly SqlConnectionProvider _connectProvider;
         public ClientRepository(SqlConnectionProvider connectProvider)

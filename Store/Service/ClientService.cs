@@ -1,22 +1,15 @@
 ﻿using Store.Domain;
-using Store.Infrastructure;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
-using Store.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Service;
 
 namespace Store.Service
 {
-    internal class ClientService : IDao<Client>
+    internal class ClientService : IServiceClient<Client>
     {
-        private readonly IDao<Client> _clientRepository;
-        private readonly IDao<Address> _addressesRepository;
-        public ClientService(IDao<Client> clientRepository, IDao<Address> addressesRepository)
+        private readonly IDaoClient<Client> _clientRepository;
+        private readonly IDaoAddresses<Address> _addressesRepository;
+        public ClientService(IDaoClient<Client> clientRepository, IDaoAddresses<Address> addressesRepository)
         {
             this._clientRepository = clientRepository;
             this._addressesRepository = addressesRepository;

@@ -1,13 +1,13 @@
 ﻿using Store.Domain;
 using Store.Infrastructure;
 using Store.Infrastructure.ExceptionCustomized;
-using Store.Model;
 using System.Data.Common;
 using System.Diagnostics;
+using Store.Domain.Model.Dao;
 
 namespace Store.Repositories
 {
-    internal class StoreRepository : IDao<Cart>
+    internal class StoreRepository : IDaoStore<Cart>
     {
         private readonly SqlConnectionProvider _connectionProvider;
 

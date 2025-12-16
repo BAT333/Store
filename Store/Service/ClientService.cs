@@ -1,7 +1,9 @@
 ﻿using Store.Domain;
-using Store.Infrastructure.ExceptionCustomized;
 using Store.Domain.Model.Dao;
+using Store.Domain.Model.Dto;
+using Store.Domain.Model.Infrastructure;
 using Store.Domain.Model.Service;
+using Store.Infrastructure.ExceptionCustomized;
 
 namespace Store.Service
 {
@@ -9,16 +11,18 @@ namespace Store.Service
     {
         private readonly IDaoClient<Client> _clientRepository;
         private readonly IDaoAddresses<Address> _addressesRepository;
-        public ClientService(IDaoClient<Client> clientRepository, IDaoAddresses<Address> addressesRepository)
+        private readonly IAddressSearcher<AddressDto> _addressesSearcher;
+        public ClientService(IDaoClient<Client> clientRepository, IDaoAddresses<Address> addressesRepository, IAddressSearcher<AddressDto> addressesSearcher)
         {
             this._clientRepository = clientRepository;
             this._addressesRepository = addressesRepository;
+            _addressesSearcher = addressesSearcher;
         }
 
-        public Client Add(Client entity)
+        public async Task<Client> Add(Client entity)
         {
-
-            entity.Address = this._addressesRepository.Add(entity.Address);
+            var dto = await _addressesSearcher.SearchByZipCod(entity.Address.ZipCode);
+            entity.Address = this._addressesRepository.Add(new Address(dto,entity.Address.Number));
             if (entity.Address.Id <= 0) throw new ExceptionalCustomer("address not registered");
             Client client = this._clientRepository.Add(entity);
             if (client.Id <= 0) throw new ExceptionalCustomer("Client not registered");

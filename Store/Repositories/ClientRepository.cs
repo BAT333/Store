@@ -1,6 +1,4 @@
-﻿
-
-using Store.Domain;
+﻿using Store.Domain;
 using Store.Domain.Model.Dao;
 using Store.Domain.Model.Infrastructure;
 using Store.Infrastructure;

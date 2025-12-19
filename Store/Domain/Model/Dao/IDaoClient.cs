@@ -10,7 +10,7 @@ namespace Store.Domain.Model.Dao
     internal interface IDaoClient<T> where T : class
     {
         T Add(T entity);
-        bool Delete(int id);
+        bool Delete(int id,int idAddress);
         T? Update(int id, T entity);
         T? GetById(int id);
     }

@@ -1,8 +1,6 @@
 ﻿
 
 /*
- * arruma logica do endereço 
- * UNIFICAR ENDEREÇO E CLIENTE 
  */
 
 using Store.Domain;
@@ -21,7 +19,7 @@ try
 {
     using HttpClient httpClient = new HttpClient();
     AddressSearcher addressSearcher = new AddressSearcher(httpClient);
-    ClientService clientService = new ClientService(new ClientRepository(sqlConnectionProvider), new AddressesRepository(sqlConnectionProvider), addressSearcher);
+    ClientService clientService = new ClientService(new ClientRepository(sqlConnectionProvider), addressSearcher);
 
     
     await clientService.Add(new Client("rafaek", "rafq3el@gmail.com.br", "11934844243", new Address("","","",5, "01001-000")));

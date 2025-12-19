@@ -1,14 +1,21 @@
 ﻿
+
+using Store.Domain.Model.Dto;
+using System.Reflection.Emit;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace Store.Domain
 {
     internal class Address
     {
+        private AddressDto da;
+
         public int Id { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string Neighborhood { get; set; }
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string Neighborhood { get; set; } = string.Empty;
         public int Number { get; set; }
-        public string ZipCode { get; set; }
+        public string ZipCode { get; set; } = string.Empty;
 
         public Address(int id)
         {
@@ -32,5 +39,15 @@ namespace Store.Domain
             this.ZipCode = zipCode;
         }
 
+        public Address(AddressDto dto,int num)
+        {
+
+            this.City = dto.City;
+            this.State = dto.State;
+            this.Neighborhood = dto.Neighborhood;
+            this.Number = num;
+            this.ZipCode = dto.ZipCode;
+
+        }
     }
 }

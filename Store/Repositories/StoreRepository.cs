@@ -1,15 +1,19 @@
 ﻿using Store.Domain;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Infrastructure;
 using Store.Infrastructure;
-using Store.Model;
+using Store.Infrastructure.ExceptionCustomized;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace Store.Repositories
 {
-    internal class StoreRepository : IDao<Cart>
+    internal class StoreRepository : IDaoStore<Cart>
     {
-        private readonly SqlConnectionProvider _connectionProvider;
+        private readonly IConnectionSQL<IDbConnection> _connectionProvider;
 
-        public StoreRepository(SqlConnectionProvider connectionProvider)
+        public StoreRepository(IConnectionSQL<IDbConnection> connectionProvider)
         {
             this._connectionProvider = connectionProvider;
         }
@@ -37,10 +41,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("Error registering store.", ex);
             }
 
 
@@ -73,10 +77,10 @@ namespace Store.Repositories
                 return delete;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("ERROR DELETING STORE.", ex);
             }
         }
 
@@ -85,10 +89,8 @@ namespace Store.Repositories
             string query = "SELECT ID,  ClientID , ProductID FROM Cart WHERE ID = @ID";
 
             using var connection = this._connectionProvider.CreateOpenConnection();
-            using var transaction = connection.BeginTransaction();
             using var cmd = connection.CreateCommand();
 
-            cmd.Transaction = transaction;
             cmd.CommandText = query;
 
             cmd.AddParam("@ID", id);
@@ -102,17 +104,14 @@ namespace Store.Repositories
                     int clientID = Convert.ToInt32(reader["ClientID"]);
                     int productID = Convert.ToInt32(reader["ProductID"]);
 
-                    transaction.Commit();
                     return new Cart(cardID, clientID, productID);
                 }
-                transaction.Rollback();
                 return null;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
-                transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("ERROR SEARCHING FOR STORE.", ex);
             }
         }
 
@@ -143,10 +142,10 @@ namespace Store.Repositories
                 return entity;
 
             }
-            catch (Exception ex)
+            catch (DbException ex)
             {
                 transaction.Rollback();
-                throw ex.GetBaseException();
+                throw new ExceptionalStore("Error updating store.", ex);
             }
         }
     }

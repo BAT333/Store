@@ -1,61 +1,51 @@
 ﻿using Store.Domain;
-using Store.Infrastructure;
-using Store.Model;
-using Store.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Dto;
+using Store.Domain.Model.Infrastructure;
+using Store.Domain.Model.Service;
+using Store.Infrastructure.ExceptionCustomized;
 
 namespace Store.Service
 {
-    internal class ClientService : IDao<Client>
+    internal class ClientService : IServiceClient<Client>
     {
-        private readonly IDao<Client> _clientRepository;
-        private readonly IDao<Address> _addressesRepository;
-        public ClientService(IDao<Client> clientRepository, IDao<Address> addressesRepository)
+        private readonly IDaoClient<Client> _clientRepository;
+        private readonly IAddressSearcher<AddressDto> _addressesSearcher;
+        public ClientService(IDaoClient<Client> clientRepository, IAddressSearcher<AddressDto> addressesSearcher)
         {
             this._clientRepository = clientRepository;
-            this._addressesRepository = addressesRepository;
+            _addressesSearcher = addressesSearcher;
         }
 
-        public Client Add(Client entity)
+        public async Task<Client> Add(Client entity)
         {
-            entity.Address = this._addressesRepository.Add(entity.Address);
-            if (entity.Address.Id > 1)
-            {
-                Client client = this._clientRepository.Add(entity);
-                return client;
-            }
-            else
-            {
-                throw new InvalidOperationException("address not registered");
-            }
-
+            var dto = await _addressesSearcher.SearchByZipCod(entity.Address.ZipCode);
+            //validar numero esta prenchido
+            entity.Address = new Address(dto, entity.Address.Number);
+            if (entity.Address.Id <= 0) throw new ExceptionalCustomer("address not registered");
+            Client client = this._clientRepository.Add(entity);
+            if (client.Id <= 0) throw new ExceptionalCustomer("Client not registered");
+            return client;
         }
 
         public bool Delete(int id)
         {
-            Client? client = GetById(id);
-            if (client == null || client.Address == null) return false;
-            if (!this._clientRepository.Delete(id)) return false;
-            return this._addressesRepository.Delete(client.Address.Id);
+            Client client = GetById(id);
+            if (!this._clientRepository.Delete(id, client.Address.Id)) throw new ExceptionalCustomer("Failed to delete client.");
+            return true;
         }
 
-        public Client? GetById(int id)
+        public Client GetById(int id)
         {
             Client? client = this._clientRepository.GetById(id);
-            if (client.Address.Id <= 0) return null;
-            client.Address = _addressesRepository.GetById(client.Address.Id);
-
+            if (client == null || client.Address.Id <= 0) throw new ExceptionalCustomer("Client not registered.");
             return client;
         }
 
         public Client? Update(int id, Client entity)
         {
-            if(this._clientRepository.GetById(id) == null) return null;
-            if (entity == null) return null;
+            if (entity == null) throw new ExceptionalCustomer("Client not registered.");
+            this._clientRepository.GetById(id);
             Client? client = this._clientRepository.Update(id, entity);
             return client;
         }

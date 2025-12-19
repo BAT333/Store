@@ -1,36 +1,33 @@
-﻿using Store.Infrastructure;
+﻿
+
+/*
+ */
+
+using Store.Domain;
+using Store.Infrastructure;
 using Store.Repositories;
 using Store.Service;
-using Store.Domain;
-/*
- * FAZER THROW
- * TERMINAR AS VALIDAÇÃO E VERIFICAR QUE TODA LOGICA FAZ SENTIDO 
- * CRIAR ABSTRAÇÃO PARA QUE PRECISA
- * SOLID / CLEAN 
- */
 
 string? value = Environment.GetEnvironmentVariable(
     "DB_CONNECTION",
     EnvironmentVariableTarget.Machine
 );
-
-SqlConnectionProvider sqlConnection = new SqlConnectionProvider(value ?? "");
-StoreService storeService = new StoreService(new StoreRepository(sqlConnection),new ClientRepository(sqlConnection),new ProductRepository(sqlConnection) );
-
- Cart cart = storeService.Add(new Cart(27,5));
-Console.WriteLine(cart.Id);
-
-Cart cart1 = storeService.GetById(cart.Id);
-
-Console.WriteLine(cart1.IdProduct + "---" + cart1.IdClient);
-
-Cart cart2 = storeService.Update(cart.Id, new Cart(33, 2));
-
-Console.WriteLine(cart2.IdProduct + "---" + cart2.IdClient);
+SqlConnectionProvider sqlConnectionProvider = new SqlConnectionProvider(value);
 
 
-bool delete =storeService.Delete(cart.Id);
+try
+{
+    using HttpClient httpClient = new HttpClient();
+    AddressSearcher addressSearcher = new AddressSearcher(httpClient);
+    ClientService clientService = new ClientService(new ClientRepository(sqlConnectionProvider), addressSearcher);
 
-Console.WriteLine(delete);
+    
+    await clientService.Add(new Client("rafaek", "rafq3el@gmail.com.br", "11934844243", new Address("","","",5, "01001-000")));
+
+}catch(Exception EX)
+{
+    Console.WriteLine(EX.Message);
+}
+
 
 Console.ReadLine();

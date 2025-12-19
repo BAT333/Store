@@ -1,18 +1,20 @@
 ﻿
 
-using Store.Model;
 using Store.Domain;
-using Store.Repositories;
+using Store.Infrastructure.ExceptionCustomized;
+using Store.Domain.Model.Dao;
+using Store.Domain.Model.Service;
+
 
 namespace Store.Service
 {
-    internal class StoreService : IDao<Cart>
+    internal class StoreService : IServiceStore<Cart>
     {
-        private readonly IDao<Cart> _storeRepository;
-        private readonly IDao<Client> _clientRepository;
-        private readonly IDao<Product> _productRepository;
+        private readonly IDaoStore<Cart> _storeRepository;
+        private readonly IDaoClient<Client> _clientRepository;
+        private readonly IDaoProduct<Product> _productRepository;
 
-        public StoreService(IDao<Cart> storeRepository, IDao<Client> clientRepository, IDao<Product> productRepository)
+        public StoreService(IDaoStore<Cart> storeRepository, IDaoClient<Client> clientRepository, IDaoProduct<Product> productRepository)
         {
             this._storeRepository = storeRepository;
             this._clientRepository = clientRepository;
@@ -21,10 +23,9 @@ namespace Store.Service
 
         public Cart Add(Cart entity)
         {
+            if (entity == null) throw new ExceptionalStore("Store not registered.");
             Client? client = this._clientRepository.GetById(entity.IdClient);
             Product? product = this._productRepository.GetById(entity.IdProduct);
-
-            if (product == null || client == null) return null;
 
             return this._storeRepository.Add(new Cart(client.Id, product.Id));
         }
@@ -32,31 +33,27 @@ namespace Store.Service
         public bool Delete(int id)
         {
             Cart? cart = this.GetById(id);
-
-            if (cart == null) return false;
-
             return this._storeRepository.Delete(id);
         }
 
         public Cart? GetById(int id)
         {
             Cart? cart = this._storeRepository.GetById(id);
-
+            if (cart == null || cart.Id <= 0) throw new ExceptionalStore("Store not registered");
             return cart == null ? null : cart;
         }
 
         public Cart? Update(int id, Cart entity)
         {
             
+            this.GetById(id);
 
-            if (this.GetById(id)==null) return null;
+            if(entity == null) throw new ExceptionalStore("Store not registered");
 
             Client? client = this._clientRepository.GetById(entity.IdClient);
             Product? product = this._productRepository.GetById(entity.IdProduct);
 
-            if (product == null || client == null) return null;
-            Cart? cart = this._storeRepository.Update(id, entity);
-            return cart == null ? null : cart; 
+            return this._storeRepository.Update(id, entity); ; 
 
         }
     }

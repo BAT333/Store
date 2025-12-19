@@ -1,41 +1,36 @@
 ﻿using Store.Domain;
-using Store.Infrastructure.ExceptionCustomized;
-using Store.Domain.Model.Dao;
-using Store.Domain.Model.Service;
-
+using Store.Model;
 
 namespace Store.Service
 {
-    internal class ProductService : IServiceProduct<Product>
+    internal class ProductService : IDao<Product>
     {
-        private readonly IDaoProduct<Product> _productRepository;
-        public ProductService(IDaoProduct<Product> productRepository)
+        private readonly IDao<Product> _productRepository;
+        public ProductService(IDao<Product> productRepository)
         {
             this._productRepository = productRepository;
         }
         public Product Add(Product entity)
         {
-            if (entity == null) throw new ExceptionalProduct("Product not registered.");
+            if (entity == null) return null;
             return this._productRepository.Add(entity);
         }
 
         public bool Delete(int id)
         {
-            this.GetById(id);
+            if (this.GetById(id) == null) return false;
             return this._productRepository.Delete(id);
         }
 
         public Product? GetById(int id)
         {
-            Product product = this._productRepository.GetById(id);
-            if (product == null || product.Id <= 0) throw new ExceptionalCustomer("Product not registered");
-            return product;
+            return this._productRepository.GetById(id);
         }
 
         public Product? Update(int id, Product entity)
         {
-            this.GetById(id);
-            if (entity == null) throw new ExceptionalProduct("Product not registered.");
+            if (this.GetById(id) == null) return null;
+            if (entity == null) return null;
             return this._productRepository.Update(id, entity);
         }
     }

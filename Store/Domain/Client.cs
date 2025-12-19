@@ -1,5 +1,5 @@
-﻿using Store.Domain.Valid;
-using Store.Infrastructure.ExceptionCustomized;
+﻿using Store.Valid;
+
 
 namespace Store.Domain
 {
@@ -43,7 +43,7 @@ namespace Store.Domain
                 }
                 else
                 {
-                    throw new ExceptionalCustomer(message:"Invalid Email", innerException: new ArgumentException());
+                    throw new Exception("Invalid Email");
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace Store.Domain
                 }
                 else
                 {
-                    throw new ExceptionalCustomer(message: "Invalid phone number", innerException: new ArgumentException());
+                    throw new Exception("Invalid phone number");
                 }
             }
         }

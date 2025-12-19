@@ -1,9 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
-using Store.Domain.Model.Infrastructure;
 using System.Data;
 namespace Store.Infrastructure
 {
-    internal class SqlConnectionProvider : IConnectionSQL<IDbConnection>
+    internal class SqlConnectionProvider
     {
 
 

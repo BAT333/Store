@@ -1,21 +1,21 @@
 ﻿using Store.Infrastructure;
 using Store.Domain;
 using Store.Model;
-using System.Diagnostics;
+
+
 namespace Store.Repositories
 {
-    internal class ProductRepository : IDao<Product>
+    internal class AddressesRepository : IDao<Address>
     {
         private readonly SqlConnectionProvider _connectionProvider;
-
-        public ProductRepository(SqlConnectionProvider connectionProvider)
+        public AddressesRepository(SqlConnectionProvider connectionProvider)
         {
             this._connectionProvider = connectionProvider;
         }
-        public Product Add(Product entity)
+        public Address Add(Address entity)
         {
-            string query = "INSERT INTO Product(Name,Description,Price) OUTPUT INSERTED.ID " +
-    "VALUES (@Name,@Description,@Price)";
+            string query = "INSERT INTO addresses(City,State,Neighborhood,Number,ZipCode)" +
+                "OUTPUT INSERTED.ID VALUES (@City, @State,@Neighborhood,@Number,@ZipCode)";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var transaction = connectionProvider.BeginTransaction();
@@ -24,12 +24,15 @@ namespace Store.Repositories
             cmd.Transaction = transaction;
             cmd.CommandText = query;
 
-            cmd.AddParam("@Name", entity.Name);
-            cmd.AddParam("@Description", entity.Description);
-            cmd.AddParam("@Price", entity.Price);
+            cmd.AddParam("@City", entity.City);
+            cmd.AddParam("@State", entity.State);
+            cmd.AddParam("@Neighborhood", entity.Neighborhood);
+            cmd.AddParam("@Number", entity.Number);
+            cmd.AddParam("@ZipCode", entity.ZipCode);
 
             try
             {
+
                 entity.Id = Convert.ToInt32(cmd.ExecuteScalar());
 
                 transaction.Commit();
@@ -39,14 +42,17 @@ namespace Store.Repositories
             }
             catch (Exception ex)
             {
+
                 transaction.Rollback();
                 throw ex.GetBaseException();
+
             }
+
         }
 
         public bool Delete(int id)
         {
-            string query = "DELETE FROM Product WHERE Id = @ID";
+            string query = "DELETE FROM addresses WHERE ID =  @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var transaction = connectionProvider.BeginTransaction();
@@ -56,6 +62,7 @@ namespace Store.Repositories
             cmd.CommandText = query;
 
             cmd.AddParam("@ID", id);
+
 
             try
             {
@@ -67,20 +74,19 @@ namespace Store.Repositories
                     return delete;
                 }
                 transaction.Commit();
-                return delete;
 
+                return delete;
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
                 throw ex.GetBaseException();
             }
-
         }
 
-        public Product? GetById(int id)
+        public Address? GetById(int id)
         {
-            string query = "SELECT ID, Name, Description ,Price FROM Product WHERE ID = @ID";
+            string query = "SELECT ID , City,State,Neighborhood,Number,ZipCode FROM addresses WHERE ID = @ID";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var transaction = connectionProvider.BeginTransaction();
@@ -97,15 +103,19 @@ namespace Store.Repositories
 
                 if (reader.Read())
                 {
-                    int productID = Convert.ToInt32(reader["ID"]);
-                    string? name = reader["Name"].ToString();
-                    string? description = reader["Description"].ToString();
-                    double price = Convert.ToDouble(reader["Price"]);
+
+                    int? addressID = (int)Convert.ToInt64(reader["ID"]);
+                    string? city = reader["City"].ToString();
+                    string? state = reader["State"].ToString();
+                    string? neighborhood = reader["Neighborhood"].ToString();
+                    int? number = (int)Convert.ToInt64(reader["Number"]);
+                    string? zipCode = reader["ZipCode"].ToString();
 
                     transaction.Commit();
-                    return new Product(productID, name ?? "", description ?? "", price);
 
+                    return new Address(addressID ?? 0, city ?? "", state ?? "", neighborhood ?? "", number ?? 0, zipCode ?? "");
                 }
+
                 transaction.Rollback();
                 return null;
             }
@@ -114,13 +124,11 @@ namespace Store.Repositories
                 transaction.Rollback();
                 throw ex.GetBaseException();
             }
-
-
         }
 
-        public Product? Update(int id, Product entity)
+        public Address? Update(int id, Address entity)
         {
-            string query = "UPDATE Product SET Name = @Name, Description = @Description ,Price = @Price WHERE ID = @ID";
+            string query = "UPDATE addresses SET City = @City ,State = @State ,Neighborhood = @Neighborhood ,Number = @Number ,ZipCode = @ZipCode WHERE ID = @ID ";
 
             using var connectionProvider = this._connectionProvider.CreateOpenConnection();
             using var transaction = connectionProvider.BeginTransaction();
@@ -129,24 +137,23 @@ namespace Store.Repositories
             cmd.Transaction = transaction;
             cmd.CommandText = query;
 
-            cmd.AddParam("@Name", entity.Name);
-            cmd.AddParam("@Description", entity.Description);
-            cmd.AddParam("@Price", entity.Price);
             cmd.AddParam("@ID", id);
-
+            cmd.AddParam("@City", entity.City);
+            cmd.AddParam("@State", entity.State);
+            cmd.AddParam("@Neighborhood", entity.Neighborhood);
+            cmd.AddParam("@Number", entity.Number);
+            cmd.AddParam("@ZipCode", entity.ZipCode);
 
             try
             {
                 bool update = cmd.ExecuteNonQuery() > 0;
-
-                if (!update)
+                if (update)
                 {
-                    transaction.Rollback();
-                    return null;
+                    transaction.Commit();
+                    return entity;
                 }
-                transaction.Commit();
-                return entity;
-
+                transaction.Rollback();
+                return null;
             }
             catch (Exception ex)
             {
